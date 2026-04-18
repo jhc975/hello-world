@@ -1,15 +1,15 @@
 ---
 # ── 生理节律基础 ───────────────────────────────────────────────────
 chronotype: morning
-wake_time: "07:00"
-sleep_time: "23:00"
+wake_time: "09:30"
+sleep_time: "01:00"
 target_sleep_hours: 8
 
 # ── 效率时间窗口（24h 格式，请根据自身规律修改）────────────────────
-peak_focus_start: "09:00"
-peak_focus_end: "12:00"
-peak_creativity_start: "10:00"
-peak_creativity_end: "13:00"
+peak_focus_start: "19:30"
+peak_focus_end: "22:00"
+peak_creativity_start: "23:00"
+peak_creativity_end: "01:00"
 afternoon_dip_start: "14:00"
 afternoon_dip_end: "15:30"
 second_wind_start: "15:30"
@@ -52,7 +52,7 @@ restore_factor_hobby: 1.0
 
 | 指标 | 我的情况 |
 |------|---------|
-| 自然醒时间 | 07:00 |
+| 自然醒时间 | 10:00 |
 | 不用闹钟感到最清醒的时间 | 填写 |
 | 夜间最晚专注工作的时间 | 填写 |
 | 午后是否有明显困倦 | 是 / 否 |
