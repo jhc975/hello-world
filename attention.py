@@ -17,6 +17,7 @@ Daily Attention Planning System
 """
 
 import json
+import re
 import sys
 import argparse
 from datetime import date, datetime
@@ -29,6 +30,7 @@ MAX_ATTENTION = 100
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
 ACTIVITIES_FILE = BASE_DIR / "activities.json"
+PROFILE_FILE = BASE_DIR / "profile.md"
 
 # (最低分, 区间名, 建议)
 ZONES = [
@@ -48,6 +50,87 @@ def get_zone(att: float) -> tuple:
         if att >= lo:
             return lo, label, advice
     return 0, "危机 CRITICAL", "强制休息"
+
+
+_PROFILE_DEFAULTS = {
+    "chronotype": "morning",
+    "wake_time": "07:00",
+    "sleep_time": "23:00",
+    "target_sleep_hours": 8,
+    "peak_focus_start": "09:00",
+    "peak_focus_end": "12:00",
+    "peak_creativity_start": "10:00",
+    "peak_creativity_end": "13:00",
+    "afternoon_dip_start": "14:00",
+    "afternoon_dip_end": "15:30",
+    "second_wind_start": "15:30",
+    "second_wind_end": "18:00",
+    "wind_down_start": "20:00",
+    "base_attention_great": 90,
+    "base_attention_good": 80,
+    "base_attention_normal": 70,
+    "base_attention_poor": 55,
+    "base_attention_bad": 40,
+}
+
+
+def load_profile() -> dict:
+    """Parse YAML frontmatter from profile.md into a flat settings dict."""
+    if not PROFILE_FILE.exists():
+        return dict(_PROFILE_DEFAULTS)
+    try:
+        text = PROFILE_FILE.read_text(encoding="utf-8")
+        m = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
+        if not m:
+            return dict(_PROFILE_DEFAULTS)
+        parsed = {}
+        for line in m.group(1).splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if ":" not in line:
+                continue
+            key, _, val = line.partition(":")
+            key = key.strip()
+            val = val.strip().strip('"').strip("'")
+            if not val:
+                continue
+            try:
+                val = int(val)
+            except ValueError:
+                try:
+                    val = float(val)
+                except ValueError:
+                    pass
+            parsed[key] = val
+        return {**_PROFILE_DEFAULTS, **parsed}
+    except Exception:
+        return dict(_PROFILE_DEFAULTS)
+
+
+def get_current_window(profile: dict) -> str:
+    """Describe the current time window based on profile settings."""
+    now = datetime.now().strftime("%H:%M")
+    windows = [
+        (profile["peak_focus_start"],    profile["peak_focus_end"],
+         "🎯 深度专注峰值"),
+        (profile["peak_creativity_start"], profile["peak_creativity_end"],
+         "🎨 创造力峰值"),
+        (profile["afternoon_dip_start"], profile["afternoon_dip_end"],
+         "😴 生理低谷  → 建议：小憩或行政事务"),
+        (profile["second_wind_start"],   profile["second_wind_end"],
+         "🔁 二次峰值"),
+        (profile.get("wind_down_start", "20:00"), "23:59",
+         "🌙 放松收尾"),
+    ]
+    active = [
+        f"{label}（{s}–{e}）"
+        for s, e, label in windows
+        if s <= now < e
+    ]
+    if active:
+        return "  ".join(active)
+    return f"⏰ {now}（过渡时段）"
 
 
 def attention_bar(att: float, width: int = 28) -> str:
@@ -123,9 +206,16 @@ def find_activity(activities: dict, act_id: str) -> tuple[str, dict] | tuple[Non
 # ─── 命令：new-day ──────────────────────────────────────────────────────────────
 
 def cmd_new_day(args):
+    profile = load_profile()
     sleep_quality = args.sleep_quality.lower() if hasattr(args, "sleep_quality") and args.sleep_quality else "normal"
-    start_map = {"great": 90, "good": 90, "normal": 75, "poor": 55, "bad": 40}
-    starting = start_map.get(sleep_quality, 75)
+    start_map = {
+        "great":  int(profile["base_attention_great"]),
+        "good":   int(profile["base_attention_good"]),
+        "normal": int(profile["base_attention_normal"]),
+        "poor":   int(profile["base_attention_poor"]),
+        "bad":    int(profile["base_attention_bad"]),
+    }
+    starting = start_map.get(sleep_quality, int(profile["base_attention_normal"]))
 
     existing = load_today()
     if existing:
@@ -187,7 +277,10 @@ def cmd_add(args):
         return
 
     duration_min = args.minutes
-    delta = calc_delta(act, duration_min, kind)
+    profile = load_profile()
+    factor_key = f"{'drain' if kind == 'drain' else 'restore'}_factor_{args.id}"
+    factor = float(profile.get(factor_key, 1.0))
+    delta = calc_delta(act, duration_min, kind) * factor
 
     current = compute_attention(day)
     after = max(0.0, min(MAX_ATTENTION, current + delta))
@@ -272,6 +365,8 @@ def cmd_status(args):
 
     planned_end = timeline[-1]
     lo, label, advice = get_zone(current_done_att)
+    profile = load_profile()
+    window = get_current_window(profile)
 
     print("\n" + "═" * 62)
     print(f"  📅 {day['date']}  注意力规划状态")
@@ -279,6 +374,7 @@ def cmd_status(args):
     print(f"  起始注意力：{day['starting_attention']:.0f}  (睡眠质量：{day['sleep_quality']})")
     print(f"  当前注意力：{attention_bar(current_done_att)}")
     print(f"  状态区间  ：{label}")
+    print(f"  当前时段  ：{window}")
     print(f"  建议      ：{advice}")
     if day["entries"]:
         print(f"  计划结束  ：{planned_end:.0f}/100  {attention_bar(planned_end)}")
