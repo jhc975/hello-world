@@ -1,0 +1,30 @@
+{
+  "drain": [
+    {"id": "deep_work",      "name": "深度工作 / 编程",       "cost_per_hour": 28, "min_attention": 50, "tags": ["work", "cognitive"]},
+    {"id": "hard_meeting",   "name": "高强度会议 / 讨论",     "cost_per_hour": 25, "min_attention": 45, "tags": ["social", "cognitive"]},
+    {"id": "decision",       "name": "重要决策",               "cost_per_hour": 32, "min_attention": 55, "tags": ["cognitive"]},
+    {"id": "learning",       "name": "学习新知识",             "cost_per_hour": 22, "min_attention": 45, "tags": ["cognitive", "learning"]},
+    {"id": "writing",        "name": "写作 / 报告",            "cost_per_hour": 20, "min_attention": 40, "tags": ["work", "cognitive"]},
+    {"id": "admin",          "name": "行政事务 / 邮件",        "cost_per_hour": 12, "min_attention": 20, "tags": ["work", "shallow"]},
+    {"id": "social_oblig",   "name": "社交应酬",               "cost_per_hour": 18, "min_attention": 30, "tags": ["social"]},
+    {"id": "commute",        "name": "通勤 / 驾车",            "cost_per_hour": 10, "min_attention": 15, "tags": ["physical"]},
+    {"id": "multitask",      "name": "多任务处理",             "cost_per_hour": 35, "min_attention": 60, "tags": ["work", "cognitive"]},
+    {"id": "conflict",       "name": "处理冲突 / 负面情绪",   "cost_per_hour": 30, "min_attention": 0,  "tags": ["emotional"]},
+    {"id": "presentation",   "name": "演讲 / 汇报",            "cost_per_hour": 27, "min_attention": 55, "tags": ["social", "cognitive"]},
+    {"id": "reading_hard",   "name": "阅读难度文献",           "cost_per_hour": 18, "min_attention": 45, "tags": ["cognitive", "learning"]}
+  ],
+  "restore": [
+    {"id": "sleep_full",     "name": "完整睡眠 (7-8h)",       "restore": 70,  "duration_min": 480, "tags": ["sleep"]},
+    {"id": "nap",            "name": "小憩 (20-30min)",       "restore": 18,  "duration_min": 25,  "tags": ["sleep"]},
+    {"id": "meditation",     "name": "冥想 / 正念",            "restore": 12,  "duration_min": 20,  "tags": ["mental"]},
+    {"id": "nature_walk",    "name": "户外散步",               "restore": 15,  "duration_min": 30,  "tags": ["physical", "nature"]},
+    {"id": "exercise",       "name": "运动锻炼",               "restore": 20,  "duration_min": 45,  "tags": ["physical"]},
+    {"id": "meal_mindful",   "name": "专心用餐（无屏幕）",     "restore": 10,  "duration_min": 30,  "tags": ["physical"]},
+    {"id": "light_reading",  "name": "轻松阅读（小说 / 杂志）","restore": 8,   "duration_min": 30,  "tags": ["mental"]},
+    {"id": "music_relax",    "name": "听音乐放松",             "restore": 7,   "duration_min": 30,  "tags": ["mental"]},
+    {"id": "social_fun",     "name": "愉快的社交",             "restore": 8,   "duration_min": 60,  "tags": ["social"]},
+    {"id": "hobby",          "name": "兴趣爱好",               "restore": 12,  "duration_min": 60,  "tags": ["mental", "creative"]},
+    {"id": "breathing",      "name": "深呼吸 / 放松练习",      "restore": 6,   "duration_min": 10,  "tags": ["mental"]},
+    {"id": "shower",         "name": "洗澡 / 感官放松",        "restore": 8,   "duration_min": 15,  "tags": ["physical"]}
+  ]
+}
